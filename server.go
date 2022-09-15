@@ -5,8 +5,10 @@ import (
 	"github.com/MustafaSmesem/gin_tutorial/middlewares"
 	"github.com/MustafaSmesem/gin_tutorial/service"
 	"github.com/gin-gonic/gin"
+	ginDump "github.com/tpkeeper/gin-dump"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 )
@@ -29,7 +31,7 @@ func setupLogOutput() {
 func main() {
 	setupLogOutput()
 	server := gin.New()
-	server.Use(gin.Recovery(), middlewares.Logger())
+	server.Use(gin.Recovery(), middlewares.Logger(), middlewares.BasicAuth(), ginDump.Dump())
 
 	server.GET("/", func(context *gin.Context) {
 		context.JSON(200, gin.H{
@@ -43,14 +45,22 @@ func main() {
 		id, _ := strconv.Atoi(context.Param("id"))
 		video, err := videoController.GetById(id)
 		if err != nil {
-			context.JSON(400, err.Error())
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			context.JSON(200, video)
 		}
 	})
 	server.POST("/video", func(context *gin.Context) {
-		context.JSON(200, videoController.Save(context))
+		video, err := videoController.Save(context)
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			context.JSON(200, video)
+		}
 	})
 
-	server.Run(PORT)
+	err := server.Run(PORT)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
