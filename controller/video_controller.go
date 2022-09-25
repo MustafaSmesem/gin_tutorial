@@ -7,12 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"log"
+	"net/http"
 )
 
 type VideoController interface {
 	GetAll() []model.Video
 	GetById(id int) (model.Video, error)
 	Save(ctx *gin.Context) (model.Video, error)
+	ShowAll(ctx *gin.Context)
 }
 
 type controller struct {
@@ -38,6 +40,15 @@ func (c *controller) Save(ctx *gin.Context) (model.Video, error) {
 		return model.Video{}, err
 	}
 	return c.service.Save(video), nil
+}
+
+func (c *controller) ShowAll(ctx *gin.Context) {
+	videos := c.GetAll()
+	data := gin.H{
+		"title":  "Videos Page",
+		"videos": videos,
+	}
+	ctx.HTML(http.StatusOK, "videos.page.tmpl", data)
 }
 
 var validate *validator.Validate
