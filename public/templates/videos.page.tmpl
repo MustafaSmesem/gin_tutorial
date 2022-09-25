@@ -1,0 +1,21 @@
+{{template "header" .}}
+{{define "content"}}
+    <div class="flex bg-gray-100 p-5 sm:p-8 md:p-12 justify-around grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {{range .videos}}
+            <div class="bg-white p-4 m-2 shadow-md rounded-md overflow-hidden relative hover:shadow-lg cursor-pointer">
+                <div>
+                    <iframe width="100%" height="315"
+                            src="{{.Url}}">
+                    </iframe>
+                </div>
+                <div class="mt-4">
+                    <h2 class="font-bold text-lg">{{.Title}}</h2>
+                    <p class="text-xs text-gray-400">{{.Author.Name}} . {{.Time}}</p>
+                </div>
+                <div>
+                    <p class="truncate">{{.Description}}</p>
+                </div>
+            </div>
+        {{end}}
+    </div>
+{{end}}
